@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="ros_face_recognition" type="recognition_node.py" name="recognition_node" output="screen">
+  </node>
+</launch>
