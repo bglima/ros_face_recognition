@@ -40,7 +40,7 @@ known_face_names = [
     "Joao Victor"
 ]
 
-video_capture = cv2.VideoCapture('../media/test/bruno_e_joao.mp4')
+video_capture = cv2.VideoCapture('../media/video/bruno_e_joao.mp4')
 
 # Initialize some variables
 face_locations = []
