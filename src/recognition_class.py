@@ -1,28 +1,30 @@
 # -*- coding: utf-8 -*-
-
 import face_recognition
 import cv2
 from time import time
 
 class FaceDetector:
     def __init__(self):
-        self.known_face_encodings = [] # Array of known face encodings
-        self.known_face_names = []  # Array of known face names
+        self.known_face_encodings = []   # Array of known face encodings
+        self.known_face_names = []       # Array of known face names
+        self.known_face_colors = []      # Array of colors in BGR format
 
         self.face_locations = []    # Array of locations of detected faces within image
         self.face_encodings = []    # Array of encodings of detected faces within image
         self.face_names = []        # Array of names of detected faces within image
+        self.face_colors = []       # Array of colors of detected faces within image
         self.process_this_frame = True  # If current frame should be processed or not
-        self.process_each_n = 3         # Number of frames withou processing after a processed one
+        self.process_each_n = 4         # Number of frames withou processing after a processed one
         self.frame_index = -1           # Index of current frame processed since start of program
         self.scale_factor = 0.25    # Scale original image in order to increase processing speed
         self.last_frame = None
 
-    def add_to_database(self, person_name, person_photo_path):
+    def add_to_database(self, person_name, person_photo_path, person_color):
         person_image = face_recognition.load_image_file(person_photo_path)
         person_face_encoding = face_recognition.face_encodings(person_image)[0]
         self.known_face_encodings.append(person_face_encoding)
         self.known_face_names.append(person_name)
+        self.known_face_colors.append(person_color)
 
     def process_frame(self, frame):
         # update frame_index
@@ -42,21 +44,25 @@ class FaceDetector:
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
 
-            self.face_names = []
+            self.face_names = []    # Clean data from previous frame
+            self.face_colors = []
             for face_encoding in self.face_encodings:
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
                 name = "Unknown"
+                color = (0, 0, 0)
 
                 # If a match was found in known_face_encodings, just use the first one.
                 if True in matches:
                     first_match_index = matches.index(True)
                     name = self.known_face_names[first_match_index]
+                    color = self.known_face_colors[first_match_index]
 
                 self.face_names.append(name)
+                self.face_colors.append(color)
 
             end = time()
-            print('Detection took {} seconds...'.format(round(end - start, 2)))
+            #print('Detection took {} seconds...'.format(round(end - start, 2)))
 
         # Upper limit of frame_index (in order to not overflow)
         self.frame_index = self.frame_index % self.process_each_n
@@ -65,7 +71,11 @@ class FaceDetector:
 
     def draw_results(self):
         frame = self.last_frame.copy()
-        for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+        for i in range(len(self.face_names)):
+            (top, right, bottom, left) = self.face_locations[i]
+            name = self.face_names[i]
+            color = self.face_colors[i]
+
             # Scale back up face locations since the frame we detected in was scaled to 1/4 size
             scale = int(1.0 / self.scale_factor)
             top *= scale
@@ -74,7 +84,7 @@ class FaceDetector:
             left *= scale
 
             # Draw a box around the face
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
 
             # Draw a label with a name below the face
             font = cv2.FONT_HERSHEY_DUPLEX
@@ -84,8 +94,8 @@ class FaceDetector:
 
 def main():
     detector = FaceDetector()
-    detector.add_to_database("Bruno Lima", "../media/train/bruno_lima/bruno_05.png")
-    detector.add_to_database("João Victor", "../media/train/joao_victor/joao_01.jpg")
+    detector.add_to_database("Bruno Lima", "../media/train/bruno_lima/bruno_05.png", (255, 0, 0))
+    detector.add_to_database("Joao Victor", "../media/train/joao_victor/joao_01.jpg", (0, 0, 255))
 
     video_capture = cv2.VideoCapture('../media/video/bruno_e_joao.mp4')
 
