@@ -14,7 +14,7 @@ class FaceDetector:
         self.face_names = []        # Array of names of detected faces within image
         self.face_colors = []       # Array of colors of detected faces within image
         self.process_this_frame = True  # If current frame should be processed or not
-        self.process_each_n = 4         # Number of frames withou processing after a processed one
+        self.process_each_n = 1         # Number of frames withou processing after a processed one
         self.frame_index = -1           # Index of current frame processed since start of program
         self.scale_factor = 0.25    # Scale original image in order to increase processing speed
         self.last_frame = None
@@ -40,7 +40,6 @@ class FaceDetector:
         # Only process specific frames of video to save time
         if self.process_this_frame:
             # Find all the faces and face encodings in the current frame of video
-            start = time()
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
             self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
 
@@ -61,11 +60,10 @@ class FaceDetector:
                 self.face_names.append(name)
                 self.face_colors.append(color)
 
-            end = time()
-            print('Detection took {} seconds...'.format(round(end - start, 2)))
+            #print('Detection took {} seconds...'.format(round(end - start, 2)))
 
         # Upper limit of frame_index (in order to not overflow)
-        self.frame_index = self.frame_index % self.process_each_n
+        self.frame_index = self.frame_index & self.process_each_n
         # Determine if next frame will be processed
         self.process_this_frame = not self.frame_index
 
@@ -98,8 +96,7 @@ class FaceDetector:
             cv2.putText(frame, name, (left, label_top), font, 1.0, (255, 255, 255), 1)
         return frame
 
-
-
+# Use example for recognition_class
 def main():
     detector = FaceDetector()
     detector.add_to_database("Bruno Lima", "../media/train/bruno_lima/bruno_05.png", (255, 0, 0))
@@ -126,6 +123,3 @@ def main():
     # Release handle to the webcam
     video_capture.release()
     cv2.destroyAllWindows()
-
-if __name__ == '__main__':
-    main()
