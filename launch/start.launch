@@ -3,11 +3,15 @@
   <arg name="node_name" default="recon_node" />
   <arg name="camera_topic" default="/camera/image_raw" />
   <arg name="hertz" default="30" />
+  <arg name="process_each_n" default="3"/>
+  <arg name="scale_factor" default="0.25"/>
 
   <node pkg="ros_face_recognition" type="recognition_node.py" name="$(arg node_name)" output="screen">
     <param name="node_name" value="$(arg node_name)"/>
     <param name="camera_topic" value="$(arg camera_topic)"/>
     <param name="hertz" value="$(arg hertz)" type="int"/>
+    <param name="process_each_n" value="$(arg process_each_n)" type="int"/>
+    <param name="scale_factor" value="$(arg scale_factor)" type="double"/>
   </node>
 
 </launch>

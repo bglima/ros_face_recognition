@@ -4,7 +4,7 @@ import cv2
 from time import time
 
 class FaceDetector:
-    def __init__(self):
+    def __init__(self, process_each_n=3, scale_factor=0.25):
         self.known_face_encodings = []   # Array of known face encodings
         self.known_face_names = []       # Array of known face names
         self.known_face_colors = []      # Array of colors in BGR format
@@ -14,10 +14,10 @@ class FaceDetector:
         self.face_names = []        # Array of names of detected faces within image
         self.face_colors = []       # Array of colors of detected faces within image
         self.process_this_frame = True  # If current frame should be processed or not
-        self.process_each_n = 3         # Number of frames withou processing after a processed one
-        self.frame_index = -1           # Index of current frame processed since start of program
-        self.scale_factor = 0.25    # Scale original image in order to increase processing speed
+        self.process_each_n = process_each_n # Number of frames withou processing after a processed one
+        self.scale_factor = scale_factor    # Scale original image in order to increase processing speed
         self.last_frame = None
+        self.frame_index = -1           # Index of current frame processed since start of program
 
     def add_to_database(self, person_name, person_photo_path, person_color):
         person_image = face_recognition.load_image_file(person_photo_path)
@@ -63,9 +63,13 @@ class FaceDetector:
             #print('Detection took {} seconds...'.format(round(end - start, 2)))
 
         # Upper limit of frame_index (in order to not overflow)
-        self.frame_index = self.frame_index & self.process_each_n
+        self.frame_index = self.frame_index % self.process_each_n
         # Determine if next frame will be processed
-        self.process_this_frame = not self.frame_index
+        if self.frame_index == 0:
+            self.process_this_frame = True
+        else:
+            self.process_this_frame = False
+
 
     def get_results(self):
         # Init an array that will comprise: [NAME, BOUNDING_BOX, COLOR]

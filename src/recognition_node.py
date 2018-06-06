@@ -22,6 +22,9 @@ class CameraNode:
         self.topic_name = rospy.get_param('~camera_topic')
         self.window_name = self.node_name + ':' + self.topic_name
 
+        self.process_each_n = rospy.get_param('~process_each_n')
+        self.scale_factor = rospy.get_param('~scale_factor')
+
 
     # Setup a start blank image_raw
     def setup_blank_image(self):
@@ -48,7 +51,7 @@ class CameraNode:
     # Init and setup face detector in node
     def setup_detector(self):
         # Instantiate the object
-        self.detector = FaceDetector()
+        self.detector = FaceDetector( self.process_each_n, self.scale_factor )
 
         # Add new people to detector
         self.detector.add_to_database("Bruno Lima", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
