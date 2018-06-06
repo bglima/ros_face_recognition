@@ -7,16 +7,20 @@ import numpy as np
 from face_detector import FaceDetector
 
 class CameraNode:
-    def __init__(self, node_name):
+    def __init__(self):
         self.cv2_img = None
         self.bridge = CvBridge()
-        self.hertz = 30
-        self.node_name = node_name
-        self.topic_name = '/camera/image_raw'
-        self.window_name = node_name + ':' + self.topic_name
-
+        self.setup_ros_node()
         self.setup_blank_image()
         self.setup_detector()
+
+    # Setup ROS node
+    def setup_ros_node(self):
+        rospy.init_node("recognition_node", anonymous=True)
+        self.hertz = rospy.get_param('~hertz')
+        self.node_name = rospy.get_param('~node_name')
+        self.topic_name = rospy.get_param('~camera_topic')
+        self.window_name = self.node_name + ':' + self.topic_name
 
 
     # Setup a start blank image_raw
@@ -47,8 +51,8 @@ class CameraNode:
         self.detector = FaceDetector()
 
         # Add new people to detector
-        self.detector.add_to_database("Bruno Lima", "../media/train/bruno_lima/bruno_05.png", (255, 0, 0))
-        self.detector.add_to_database("Joao Victor", "../media/train/joao_victor/joao_01.jpg", (0, 0, 255))
+        self.detector.add_to_database("Bruno Lima", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
+        self.detector.add_to_database("Joao Victor", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
 
 
     # Shows an image that was published to
@@ -64,7 +68,6 @@ class CameraNode:
         cv2.namedWindow(self.window_name)
 
         # Init node and configurations
-        rospy.init_node(self.node_name)
         rate = rospy.Rate(self.hertz)
         sub = rospy.Subscriber(self.topic_name, Image, self.image_callback)
         rospy.loginfo('Face recognition module is up and running!')
@@ -88,9 +91,8 @@ class CameraNode:
                 cv2.destroyAllWindows()
 
 def main():
-    node1 = CameraNode('recognition_node_1')
-    node1.start_node()
-
+    node = CameraNode()
+    node.start_node()
 
 if __name__ == '__main__':
     main()

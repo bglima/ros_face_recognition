@@ -1,4 +1,13 @@
 <launch>
-  <node pkg="ros_face_recognition" type="recognition_node.py" name="recognition_node" output="screen">
+
+  <arg name="node_name" default="recon_node" />
+  <arg name="camera_topic" default="/camera/image_raw" />
+  <arg name="hertz" default="30" />
+
+  <node pkg="ros_face_recognition" type="recognition_node.py" name="$(arg node_name)" output="screen">
+    <param name="node_name" value="$(arg node_name)"/>
+    <param name="camera_topic" value="$(arg camera_topic)"/>
+    <param name="hertz" value="$(arg hertz)" type="int"/>
   </node>
+
 </launch>

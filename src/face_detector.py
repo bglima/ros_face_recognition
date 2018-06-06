@@ -14,7 +14,7 @@ class FaceDetector:
         self.face_names = []        # Array of names of detected faces within image
         self.face_colors = []       # Array of colors of detected faces within image
         self.process_this_frame = True  # If current frame should be processed or not
-        self.process_each_n = 1         # Number of frames withou processing after a processed one
+        self.process_each_n = 3         # Number of frames withou processing after a processed one
         self.frame_index = -1           # Index of current frame processed since start of program
         self.scale_factor = 0.25    # Scale original image in order to increase processing speed
         self.last_frame = None
