@@ -56,7 +56,8 @@ class CameraNode:
         # Add new people to detector
         self.detector.add_to_database("Bruno Lima", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
         self.detector.add_to_database("Joao Victor", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
-
+        self.detector.add_to_database("Joao Paulo", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_paulo/joao_01.jpg", (0, 255, 0))
+        self.detector.add_to_database("Tiago Vieira", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/tiago_vieira/tiago_02.jpg", (205, 207, 109))
 
     # Shows an image that was published to
     def image_callback(self, msg):
