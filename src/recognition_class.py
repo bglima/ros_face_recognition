@@ -63,6 +63,24 @@ class FaceDetector:
         # Determine if next frame will be processed
         self.process_this_frame = not self.frame_index
 
+    def draw_results(self):
+        frame = self.last_frame.copy()
+        for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+            # Scale back up face locations since the frame we detected in was scaled to 1/4 size
+            scale = int(1.0 / self.scale_factor)
+            top *= scale
+            right *= scale
+            bottom *= scale
+            left *= scale
+
+            # Draw a box around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+
+            # Draw a label with a name below the face
+            font = cv2.FONT_HERSHEY_DUPLEX
+            label_top = top - 15 if top - 15 > 15 else top + 15
+            cv2.putText(frame, name, (left, label_top), font, 1.0, (255, 255, 255), 1)
+        return frame
 
 def main():
     detector = FaceDetector()
@@ -78,6 +96,7 @@ def main():
             break
 
         detector.process_frame(frame)
+        frame = detector.draw_results()
 
         # Display the resulting image
         cv2.imshow('Video', frame)
