@@ -62,19 +62,25 @@ class FaceDetector:
                 self.face_colors.append(color)
 
             end = time()
-            #print('Detection took {} seconds...'.format(round(end - start, 2)))
+            print('Detection took {} seconds...'.format(round(end - start, 2)))
 
         # Upper limit of frame_index (in order to not overflow)
         self.frame_index = self.frame_index % self.process_each_n
         # Determine if next frame will be processed
         self.process_this_frame = not self.frame_index
 
+    def get_results(self):
+        # Init an array that will comprise: [NAME, BOUNDING_BOX, COLOR]
+        results = []
+        for i in range(len(self.face_names)):
+            results.append( (self.face_names[i], self.face_locations[i], self.face_colors[i]) )
+        return results
+
     def draw_results(self):
         frame = self.last_frame.copy()
-        for i in range(len(self.face_names)):
-            (top, right, bottom, left) = self.face_locations[i]
-            name = self.face_names[i]
-            color = self.face_colors[i]
+        # Iterate over detected faces
+        for result in self.get_results():
+            (name, (top, right, bottom, left), color) = result
 
             # Scale back up face locations since the frame we detected in was scaled to 1/4 size
             scale = int(1.0 / self.scale_factor)
@@ -91,6 +97,8 @@ class FaceDetector:
             label_top = top - 15 if top - 15 > 15 else top + 15
             cv2.putText(frame, name, (left, label_top), font, 1.0, (255, 255, 255), 1)
         return frame
+
+
 
 def main():
     detector = FaceDetector()
