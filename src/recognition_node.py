@@ -1,6 +1,7 @@
 #! /usr/bin/python
 import rospy
 from sensor_msgs.msg import Image
+from std_srvs.srv import Trigger, TriggerResponse
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import numpy as np
@@ -58,6 +59,24 @@ class CameraNode:
         self.detector.add_to_database("Joao Victor", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
         self.detector.add_to_database("Joao Paulo", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_paulo/joao_01.jpg", (0, 255, 0))
         self.detector.add_to_database("Tiago Vieira", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/tiago_vieira/tiago_02.jpg", (205, 207, 109))
+        self.detector.add_to_database("Will Ferrell", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/will_ferrell/will_01.jpg", (120, 207, 120))
+        self.detector.add_to_database("Chad Smith", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/chad_smith/chad_01.jpg", (207, 120, 120))
+
+        # Init service to tell who_I_see
+        service = rospy.Service('~get_faces_names', Trigger, self.who_I_see)
+
+    # Service that returns who camera is seeing
+    def who_I_see(self, req):
+        results = self.detector.get_results()
+        string_of_names = ''
+        for (name, (top, right, bottom, left), color) in results:
+            string_of_names = string_of_names + name + ', '
+
+        if string_of_names == '':
+            return TriggerResponse(False, 'Nobody')
+        else:
+            return TriggerResponse(True, string_of_names[:-2])
+
 
     # Shows an image that was published to
     def image_callback(self, msg):
@@ -93,6 +112,9 @@ class CameraNode:
             except KeyboardInterrupt:
                 print('Shutting down...')
                 cv2.destroyAllWindows()
+
+
+
 
 def main():
     node = CameraNode()
