@@ -63,7 +63,7 @@ class CameraNode:
         self.detector.add_to_database("Chad Smith", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/chad_smith/chad_01.jpg", (207, 120, 120))
 
         # Init service to tell who_I_see
-        service = rospy.Service('~get_faces_names', Trigger, self.who_I_see)
+        service = rospy.Service('~get_seen_faces_names', Trigger, self.who_I_see)
 
     # Service that returns who camera is seeing
     def who_I_see(self, req):
