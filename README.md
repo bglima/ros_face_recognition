@@ -19,7 +19,7 @@ You can start recognition node with following command:
 
 ```
 roslaunch ros_face_recognition start.launch \
-node_name:=recognition_node \
+node_name:=recon_node \
 process_each_n:=3 \
 camera_topic:=/camera/image_raw \
 scale_factor:=0.25 \
