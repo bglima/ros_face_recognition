@@ -14,6 +14,7 @@ class CameraNode:
         self.setup_ros_node()
         self.setup_blank_image()
         self.setup_detector()
+        self.state = "detecting"
 
     # Setup ROS node
     def setup_ros_node(self):
@@ -55,12 +56,12 @@ class CameraNode:
         self.detector = FaceDetector( self.process_each_n, self.scale_factor )
 
         # Add new people to detector
-        self.detector.add_to_database("Bruno Lima", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
-        self.detector.add_to_database("Joao Victor", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
-        self.detector.add_to_database("Joao Paulo", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/joao_paulo/joao_01.jpg", (0, 255, 0))
-        self.detector.add_to_database("Tiago Vieira", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/tiago_vieira/tiago_02.jpg", (205, 207, 109))
-        self.detector.add_to_database("Will Ferrell", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/will_ferrell/will_01.jpg", (120, 207, 120))
-        self.detector.add_to_database("Chad Smith", "/home/brunolima/vision_ws/src/ros_face_recognition/media/train/chad_smith/chad_01.jpg", (207, 120, 120))
+        self.detector.add_to_database("BRUNO LIMA", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
+        self.detector.add_to_database("JOAO VICTOR", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
+        self.detector.add_to_database("JOAO PAULO", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/joao_paulo/joao_01.jpg", (0, 255, 0))
+        self.detector.add_to_database("TIAGO VIEIRA", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/tiago_vieira/tiago_02.jpg", (205, 207, 109))
+        self.detector.add_to_database("WILL FERREL", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/will_ferrell/will_01.jpg", (120, 207, 120))
+        self.detector.add_to_database("CHAD SMITH", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/chad_smith/chad_01.jpg", (207, 120, 120))
 
         # Init service to tell who_I_see
         service = rospy.Service('~get_seen_faces_names', Trigger, self.who_I_see)
@@ -98,8 +99,11 @@ class CameraNode:
         while not rospy.is_shutdown():
             # If image contains anything
             if not (self.cv2_img is None):
-                self.detector.process_frame( self.cv2_img )
-                cv2.imshow(self.window_name, self.detector.draw_results())
+                if self.state == "detecting":
+                    self.detector.process_frame( self.cv2_img )
+                    cv2.imshow(self.window_name, self.detector.draw_results())
+                elif self.state == "paused":
+                    cv2.imshow(self.window_name, self.detector.draw_results())
             else:
                 cv2.imshow(self.window_name, self.blank_img )
 
@@ -107,12 +111,21 @@ class CameraNode:
             key = cv2.waitKey(5)
             if key == ord('q'):
                 break
+            if key == ord('p'):
+                self.state = "paused"
+            if key == ord('d'):
+                self.state = "detecting"
             try:
                 rate.sleep()
             except KeyboardInterrupt:
                 print('Shutting down...')
                 cv2.destroyAllWindows()
 
+    def save_image_server():
+        rospy.init_node('save_image_server')
+        s = rospy.Service('save_image', save_people_photo, self.save_people_photo)
+        print "Service to add photos running."
+        rospy.spin()
 
 
 
