@@ -6,6 +6,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import numpy as np
 from face_detector import FaceDetector
+import os
 
 class CameraNode:
     def __init__(self):
@@ -55,13 +56,14 @@ class CameraNode:
         # Instantiate the object
         self.detector = FaceDetector( self.process_each_n, self.scale_factor )
 
-        # Add new people to detector
-        self.detector.add_to_database("BRUNO LIMA", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/bruno_lima/bruno_05.png", (255, 0, 0))
-        self.detector.add_to_database("JOAO VICTOR", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/joao_victor/joao_01.jpg", (0, 0, 255))
-        self.detector.add_to_database("JOAO PAULO", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/joao_paulo/joao_01.jpg", (0, 255, 0))
-        self.detector.add_to_database("TIAGO VIEIRA", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/tiago_vieira/tiago_02.jpg", (205, 207, 109))
-        self.detector.add_to_database("WILL FERREL", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/will_ferrell/will_01.jpg", (120, 207, 120))
-        self.detector.add_to_database("CHAD SMITH", "/home/emanuel/catkin_ws/src/ros_face_recognition/media/train/chad_smith/chad_01.jpg", (207, 120, 120))
+        # Get media train folder
+        py_path = os.path.abspath(__file__)
+        py_dir = os.path.abspath(os.path.join(py_path, os.pardir, os.pardir, 'media/train'))
+
+        # Add people to detect
+        self.detector.add_to_database("BRUNO LIMA", os.path.join(py_dir, "bruno_lima/bruno_05.png"), (255, 0, 0))
+        self.detector.add_to_database("JOAO PAULO", os.path.join(py_dir, "joao_paulo/joao_01.jpg"), (0, 255, 0))
+        self.detector.add_to_database("TIAGO VIEIRA", os.path.join(py_dir, "tiago_vieira/tiago_02.jpg"), (205, 207, 109))
 
         # Init service to tell who_I_see
         service = rospy.Service('~get_seen_faces_names', Trigger, self.who_I_see)
